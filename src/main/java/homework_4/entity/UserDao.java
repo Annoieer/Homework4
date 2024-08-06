@@ -2,6 +2,7 @@ package homework_4.entity;
 
 import homework_4.connection.DataSource;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
@@ -18,8 +19,11 @@ public class UserDao implements IUserDao {
     private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE id=?";
     private static final String DELETE_ALL_USER_QUERY = "TRUNCATE users";
 
+    @Autowired
+    DataSource dataSource;
+
     public void addUser(@NotNull User user) {
-        try (Connection con = DataSource.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement pst = con.prepareStatement(CREATE_USER_QUERY)) {
             pst.setLong(1, user.getId());
             pst.setString(2, user.getUsername());
@@ -30,7 +34,7 @@ public class UserDao implements IUserDao {
     }
 
     public User getUserById(@NotNull Long id) {
-        try (Connection con = DataSource.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement pst = con.prepareStatement(READ_USER_QUERY)) {
             pst.setLong(1, id);
             ResultSet resultSet = pst.executeQuery();
@@ -46,7 +50,7 @@ public class UserDao implements IUserDao {
     }
 
     public ArrayList<User> getAllUsers() {
-        try (Connection con = DataSource.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement pst = con.prepareStatement(READ_ALL_USER_QUERY)) {
             ResultSet resultSet = pst.executeQuery();
             ArrayList<User> users = getUsersFromResultSet(resultSet);
@@ -61,7 +65,7 @@ public class UserDao implements IUserDao {
     }
 
     public void deleteUserById(@NotNull Long id) {
-        try (Connection con = DataSource.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement pst = con.prepareStatement(DELETE_USER_QUERY)) {
             pst.setLong(1, id);
             int deletedUsers = pst.executeUpdate();
@@ -75,7 +79,7 @@ public class UserDao implements IUserDao {
     }
 
     public void deleteAllUsers() {
-        try (Connection con = DataSource.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement pst = con.prepareStatement(DELETE_ALL_USER_QUERY)) {
             pst.executeUpdate();
         } catch (SQLException e) {
